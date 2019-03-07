@@ -2,6 +2,7 @@
 
 #nowarn "47" // recursive initialization of LexBuffer
 
+// NOTE: the code in this file is a drop-in replacement runtime for Lexing.fs from the FsLexYacc repository
 
 namespace Internal.Utilities.Text.Lexing
 
@@ -170,7 +171,7 @@ namespace Internal.Utilities.Text.Lexing
         static member FromChars (arr:char[]) = LexBuffer.FromArrayNoCopy arr 
 
     module GenericImplFragments = 
-        let startInterpret(lexBuffer:LexBuffer<char>)= 
+        let startInterpret(lexBuffer:LexBuffer<char>) = 
             lexBuffer.BufferScanStart <- lexBuffer.BufferScanStart + lexBuffer.LexemeLength;
             lexBuffer.BufferMaxScanLength <- lexBuffer.BufferMaxScanLength - lexBuffer.LexemeLength;
             lexBuffer.BufferScanLength <- 0;

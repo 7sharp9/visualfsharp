@@ -4,8 +4,7 @@
         "certificate": "NuGet",
         "strongName": null,
         "values": [
-          "artifacts\\*.nupkg",
-          "artifacts\\*\\*.nupkg"
+          "*.nupkg"
         ]
       }
     ],
@@ -19,6 +18,7 @@
         "FSharp.Compiler.Interactive.Settings.dll",
         "FSharp.Compiler.Private.dll",
         "FSharp.Core.dll",
+        "FSharp.Core.UnitTests.dll",
         "fsi.exe"
     ]
 }

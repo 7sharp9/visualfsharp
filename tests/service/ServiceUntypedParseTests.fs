@@ -1,6 +1,6 @@
 #if INTERACTIVE
-#r "../../debug/fcs/net45/FSharp.Compiler.Service.dll" // note, run 'build fcs debug' to generate this, this DLL has a public API so can be used from F# Interactive
-#r "../../packages/NUnit.3.5.0/lib/net45/nunit.framework.dll"
+#r "../../artifacts/bin/fcs/net46/FSharp.Compiler.Service.dll" // note, build FSharp.Compiler.Service.Tests.fsproj to generate this, this DLL has a public API so can be used from F# Interactive
+#r "../../artifacts/bin/fcs/net46/nunit.framework.dll"
 #load "FsUnit.fs"
 #load "Common.fs"
 #else
@@ -11,8 +11,8 @@ open System
 open System.IO
 open System.Text
 open NUnit.Framework
-open Microsoft.FSharp.Compiler.Range
-open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.Range
+open FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Service.Tests.Common
 open Tests.Service
 
@@ -40,14 +40,12 @@ let private (=>) (source: string) (expected: CompletionContext option) =
     match markerPos with
     | None -> failwithf "Marker '%s' was not found in the source code" Marker
     | Some markerPos ->
-        match parseSourceCode("C:\\test.fs", source) with
-        | None -> failwith "No parse tree"
-        | Some parseTree ->
-            let actual = UntypedParseImpl.TryGetCompletionContext(markerPos, parseTree, lines.[Line.toZ markerPos.Line])
-            try Assert.AreEqual(expected, actual)
-            with e ->
-                printfn "ParseTree: %A" parseTree
-                reraise()
+        let parseTree = parseSource source
+        let actual = UntypedParseImpl.TryGetCompletionContext(markerPos, parseTree, lines.[Line.toZ markerPos.Line])
+        try Assert.AreEqual(expected, actual)
+        with e ->
+            printfn "ParseTree: %A" parseTree
+            reraise()
 
 module AttributeCompletion =
     [<Test>]

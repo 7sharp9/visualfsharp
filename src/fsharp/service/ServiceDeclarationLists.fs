@@ -5,30 +5,30 @@
 // type checking and intellisense-like environment-reporting.
 //--------------------------------------------------------------------------
 
-namespace Microsoft.FSharp.Compiler.SourceCodeServices
+namespace FSharp.Compiler.SourceCodeServices
 
-open Microsoft.FSharp.Compiler 
-open Microsoft.FSharp.Compiler.AbstractIL.IL 
-open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library  
-open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics 
-open Microsoft.FSharp.Compiler.AccessibilityLogic
-open Microsoft.FSharp.Compiler.ErrorLogger
-open Microsoft.FSharp.Compiler.Layout
-open Microsoft.FSharp.Compiler.Layout.TaggedTextOps
-open Microsoft.FSharp.Compiler.Lib
-open Microsoft.FSharp.Compiler.PrettyNaming
-open Microsoft.FSharp.Compiler.Range
-open Microsoft.FSharp.Compiler.Tast
-open Microsoft.FSharp.Compiler.Tastops
-open Microsoft.FSharp.Compiler.Infos
-open Microsoft.FSharp.Compiler.NameResolution
-open Microsoft.FSharp.Compiler.InfoReader
+open FSharp.Compiler 
+open FSharp.Compiler.AbstractIL.IL 
+open FSharp.Compiler.AbstractIL.Internal.Library  
+open FSharp.Compiler.AbstractIL.Diagnostics 
+open FSharp.Compiler.AccessibilityLogic
+open FSharp.Compiler.ErrorLogger
+open FSharp.Compiler.Layout
+open FSharp.Compiler.Layout.TaggedTextOps
+open FSharp.Compiler.Lib
+open FSharp.Compiler.PrettyNaming
+open FSharp.Compiler.Range
+open FSharp.Compiler.Tast
+open FSharp.Compiler.Tastops
+open FSharp.Compiler.Infos
+open FSharp.Compiler.NameResolution
+open FSharp.Compiler.InfoReader
 
 [<AutoOpen>]
 module EnvMisc3 =
     /// dataTipSpinWaitTime limits how long we block the UI thread while a tooltip pops up next to a selected item in an IntelliSense completion list.
     /// This time appears to be somewhat amortized by the time it takes the VS completion UI to actually bring up the tooltip after selecting an item in the first place.
-    let dataTipSpinWaitTime = GetEnvInteger "FCS_ToolTipSpinWaitTime" 300
+    let dataTipSpinWaitTime = GetEnvInteger "FCS_ToolTipSpinWaitTime" 5000
 
 
 [<Sealed>]
@@ -109,7 +109,7 @@ module internal DescriptionListsImpl =
                 | Some id, true, ptyOpt -> 
                     let nm = id.idText
                     // detect parameter type, if ptyOpt is None - this is .NET style optional argument
-                    let pty = defaultArg ptyOpt pty
+                    let pty = match ptyOpt with ValueSome x -> x | _ -> pty
                     (nm, isOptArg, SepL.questionMark ^^ (wordL (TaggedTextOps.tagParameter nm))),  pty
                 // Layout an unnamed argument 
                 | None, _,_ -> 
@@ -204,13 +204,13 @@ module internal DescriptionListsImpl =
             let getPrettyParamsOfTypes() = 
                 let tau = vref.TauType
                 match tryDestFunTy denv.g tau with
-                | Some(arg,rtau) ->
+                | ValueSome(arg,rtau) ->
                     let args = tryDestRefTupleTy denv.g arg 
                     let _prettyTyparInst, prettyParams, prettyRetTyL, _prettyConstraintsL = PrettyParamsOfTypes g denv item.TyparInst args rtau
                     // FUTURE: prettyTyparInst is the pretty version of the known instantiations of type parameters in the output. It could be returned
                     // for display as part of the method group
                     prettyParams, prettyRetTyL
-                | None -> 
+                | _ -> 
                     let _prettyTyparInst, prettyTyL = NicePrint.prettyLayoutOfUncurriedSig denv item.TyparInst [] tau
                     [], prettyTyL
 
@@ -241,8 +241,8 @@ module internal DescriptionListsImpl =
                     // Adjust the return type so it only strips the first argument
                     let curriedRetTy = 
                         match tryDestFunTy denv.g vref.TauType with
-                        | Some(_,rtau) -> rtau
-                        | None -> lastRetTy
+                        | ValueSome(_,rtau) -> rtau
+                        | _ -> lastRetTy
 
                     let _prettyTyparInst, prettyFirstCurriedParams, prettyCurriedRetTyL, prettyConstraintsL = PrettyParamsOfParamDatas g denv item.TyparInst firstCurriedParamDatas curriedRetTy
                     
@@ -281,6 +281,10 @@ module internal DescriptionListsImpl =
 
         | Item.RecdField rfinfo ->
             let _prettyTyparInst, prettyRetTyL = NicePrint.prettyLayoutOfUncurriedSig denv item.TyparInst [] rfinfo.FieldType
+            [], prettyRetTyL
+
+        | Item.AnonRecdField(_anonInfo,tys,i, _) ->
+            let _prettyTyparInst, prettyRetTyL = NicePrint.prettyLayoutOfUncurriedSig denv item.TyparInst [] tys.[i]
             [], prettyRetTyL
 
         | Item.ILField finfo ->
@@ -381,14 +385,14 @@ module internal DescriptionListsImpl =
          
          /// Find the glyph for the given type representation.
          let typeToGlyph ty = 
-            if isAppTy denv.g ty then 
-                let tcref = tcrefOfAppTy denv.g ty
-                tcref.TypeReprInfo |> reprToGlyph 
-            elif isStructTupleTy denv.g ty then FSharpGlyph.Struct
-            elif isRefTupleTy denv.g ty then FSharpGlyph.Class
-            elif isFunction denv.g ty then FSharpGlyph.Delegate
-            elif isTyparTy denv.g ty then FSharpGlyph.Struct
-            else FSharpGlyph.Typedef
+            match tryDestAppTy denv.g ty with
+            | ValueSome tcref -> tcref.TypeReprInfo |> reprToGlyph
+            | _ ->
+                if isStructTupleTy denv.g ty then FSharpGlyph.Struct
+                elif isRefTupleTy denv.g ty then FSharpGlyph.Class
+                elif isFunction denv.g ty then FSharpGlyph.Delegate
+                elif isTyparTy denv.g ty then FSharpGlyph.Struct
+                else FSharpGlyph.Typedef
             
          // This may explore assemblies that are not in the reference set,
          // e.g. for type abbreviations to types not in the reference set. 
@@ -403,6 +407,7 @@ module internal DescriptionListsImpl =
             | Item.UnionCase _
             | Item.ActivePatternCase _ -> FSharpGlyph.EnumMember   
             | Item.ExnCase _ -> FSharpGlyph.Exception   
+            | Item.AnonRecdField _ -> FSharpGlyph.Field
             | Item.RecdField _ -> FSharpGlyph.Field
             | Item.ILField _ -> FSharpGlyph.Field
             | Item.Event _ -> FSharpGlyph.Event   
@@ -615,15 +620,23 @@ type FSharpDeclarationListInfo(declarations: FSharpDeclarationListItem[], isForT
                     | None -> item.Item.DisplayName
                 name, items)
 
-        // Filter out operators (and list)
+        // Filter out operators, active patterns (as values) and the empty list
         let items = 
             // Check whether this item looks like an operator.
             let isOperatorItem(name, items: CompletionItem list) = 
                 match items |> List.map (fun x -> x.Item) with
                 | [Item.Value _ | Item.MethodGroup _ | Item.UnionCase _] -> IsOperatorName name
                 | _ -> false              
-            let isFSharpList name = (name = "[]") // list shows up as a Type and a UnionCase, only such entity with a symbolic name, but want to filter out of intellisense
-            items |> List.filter (fun (displayName, items) -> not (isOperatorItem(displayName, items)) && not (isFSharpList displayName)) 
+            
+            let isActivePatternItem (items: CompletionItem list) =
+                match items |> List.map (fun x -> x.Item) with
+                | [Item.Value vref] -> IsActivePatternName vref.CompiledName
+                | _ -> false
+            
+            items |> List.filter (fun (displayName, items) -> 
+                not (isOperatorItem(displayName, items)) && 
+                not (displayName = "[]") && // list shows up as a Type and a UnionCase, only such entity with a symbolic name, but want to filter out of intellisense
+                not (isActivePatternItem items))
                     
         let decls = 
             items 
@@ -702,7 +715,9 @@ type FSharpDeclarationListInfo(declarations: FSharpDeclarationListItem[], isForT
 /// a single, non-overloaded item such as union case or a named function value.
 // Note: instances of this type do not hold any references to any compiler resources.
 [<Sealed; NoEquality; NoComparison>]
-type FSharpMethodGroupItem(description: FSharpToolTipText<layout>, xmlDoc: FSharpXmlDoc, returnType: layout, parameters: FSharpMethodGroupItemParameter[], hasParameters: bool, hasParamArrayArg: bool, staticParameters: FSharpMethodGroupItemParameter[]) = 
+type FSharpMethodGroupItem(description: FSharpToolTipText<layout>, xmlDoc: FSharpXmlDoc, 
+                           returnType: layout, parameters: FSharpMethodGroupItemParameter[], 
+                           hasParameters: bool, hasParamArrayArg: bool, staticParameters: FSharpMethodGroupItemParameter[]) = 
 
     /// The structured description representation for the method (or other item)
     member __.StructuredDescription = description

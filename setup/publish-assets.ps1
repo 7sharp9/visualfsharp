@@ -16,7 +16,8 @@ The API key used to authenticate with MyGet.
 Param(
     [string]$binariesPath = $null,
     [string]$branchName = $null,
-    [string]$apiKey = $null
+    [string]$apiKey = $null,
+    [string]$configuration = $null
 )
 
 Set-StrictMode -Version 2.0
@@ -30,11 +31,8 @@ try {
         "master" {
             $requestUrl = "https://dotnet.myget.org/F/fsharp/vsix/upload"
         }
-        "dev15.7" {
+        "dev15.9" {
             $requestUrl = "https://dotnet.myget.org/F/fsharp-preview/vsix/upload"
-        }
-        "dev15.8" {
-            $requestUrl = "https://dotnet.myget.org/F/fsharp-dev15-8-preview/vsix/upload"
         }
         default {
             Write-Host "Branch [$branchName] is not supported for publishing."
@@ -43,7 +41,7 @@ try {
     }
 
     $branchName = $branchName.Replace("/", "_") # can't have slashes in the branch name
-    $vsix = Join-Path $binariesPath "net40\bin\VisualFSharpFull.vsix"
+    $vsix = Join-Path $binariesPath "VisualFSharpFull\$configuration\net46\VisualFSharpFull.vsix"
 
     Write-Host "  Uploading '$vsix' to '$requestUrl'."
 

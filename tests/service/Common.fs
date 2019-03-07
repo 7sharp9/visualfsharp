@@ -3,8 +3,8 @@ module internal FSharp.Compiler.Service.Tests.Common
 open System
 open System.IO
 open System.Collections.Generic
-open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler
+open FSharp.Compiler.SourceCodeServices
 
 #if FX_RESHAPED_REFLECTION
 open ReflectionAdapters
@@ -86,7 +86,7 @@ let sysLib nm =
 module Helpers = 
     open System
     type DummyType = A | B
-    let PathRelativeToTestAssembly p = Path.Combine(Path.GetDirectoryName(Uri(typeof<Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker>.Assembly.CodeBase).LocalPath), p)
+    let PathRelativeToTestAssembly p = Path.Combine(Path.GetDirectoryName(Uri(typeof<FSharp.Compiler.SourceCodeServices.FSharpChecker>.Assembly.CodeBase).LocalPath), p)
 
 let fsCoreDefaultReference() = 
     PathRelativeToTestAssembly "FSharp.Core.dll"
@@ -109,7 +109,7 @@ let mkProjectCommandLineArgsSilent (dllName, fileNames) =
         yield "--noframework" 
         yield "--debug:full" 
         yield "--define:DEBUG" 
-#if NETCOREAPP2_0
+#if NETCOREAPP
         yield "--targetprofile:netcore" 
 #endif
         yield "--optimize-" 
@@ -195,17 +195,18 @@ let parseAndCheckScript (file, input) =
     | FSharpCheckFileAnswer.Succeeded(res) -> parseResult, res
     | res -> failwithf "Parsing did not finish... (%A)" res
 
-let parseSourceCode (name: string, code: string) =
-    let location = Path.Combine(Path.GetTempPath(),"test"+string(hash (name, code)))
-    try Directory.CreateDirectory(location) |> ignore with _ -> ()
+let parseSource (source: string) =
+    let location = Path.GetTempFileName()
+    let filePath = Path.Combine(location, ".fs")
+    let dllPath = Path.Combine(location, ".dll")
 
-    let projPath = Path.Combine(location, name + ".fsproj")
-    let filePath = Path.Combine(location, name + ".fs")
-    let dllPath = Path.Combine(location, name + ".dll")
     let args = mkProjectCommandLineArgs(dllPath, [filePath])
     let options, errors = checker.GetParsingOptionsFromCommandLineArgs(List.ofArray args)
-    let parseResults = checker.ParseFile(filePath, code, options) |> Async.RunSynchronously
-    parseResults.ParseTree
+    let parseResults = checker.ParseFile(filePath, source, options) |> Async.RunSynchronously
+
+    match parseResults.ParseTree with
+    | Some parseTree -> parseTree
+    | None -> failwithf "Expected there to be a parse tree for source:\n%s" source
 
 /// Extract range info 
 let tups (m:Range.range) = (m.StartLine, m.StartColumn), (m.EndLine, m.EndColumn)
@@ -231,6 +232,9 @@ let attribsOfSymbol (s:FSharpSymbol) =
             if v.IsVolatile then yield "volatile"
             if v.IsStatic then yield "static"
             if v.IsLiteral then yield sprintf "%A" v.LiteralValue.Value
+            if v.IsAnonRecordField then 
+                let info, tys, i = v.AnonRecordFieldDetails
+                yield "anon(" + string i + ", [" + info.Assembly.QualifiedName + "/" + String.concat "+" info.EnclosingCompiledTypeNames + "/" + info.CompiledName + "]" + String.concat "," info.SortedFieldNames + ")"
 
 
         | :? FSharpEntity as v -> 

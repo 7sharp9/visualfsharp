@@ -7,7 +7,7 @@ open System.IO
 open System.Collections.Concurrent
 open System.Diagnostics
 
-open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.SourceCodeServices
 open Microsoft.CodeAnalysis
 open Microsoft.VisualStudio
 open Microsoft.VisualStudio.LanguageServices
@@ -221,31 +221,35 @@ type internal ProjectSitesAndFiles() =
             | _ -> None
         | Some _ -> None
 
-    static let rec referencedProvideProjectSites(projectSite:IProjectSite, serviceProvider:System.IServiceProvider, extraProjectInfo:obj option, projectOptionsTable:FSharpProjectOptionsTable option) =
+    static let rec referencedProvideProjectSites(projectIdOpt: ProjectId option, projectSite:IProjectSite, serviceProvider:System.IServiceProvider, extraProjectInfo:obj option, projectOptionsTable:FSharpProjectOptionsTable option) =
         let getReferencesForSolutionService (solutionService:IVsSolution) =
             [|
                 match referencedProjects projectSite, extraProjectInfo with
                 | None, Some (:? VisualStudioWorkspaceImpl as workspace) when not (isNull workspace.CurrentSolution)->
                     let path = projectSite.ProjectFileName
                     if not (String.IsNullOrWhiteSpace(path)) then
-                        let projectId = workspace.ProjectTracker.GetOrCreateProjectIdForPath(path, projectDisplayNameOf path)
-                        let project = workspace.CurrentSolution.GetProject(projectId)
-                        if not (isNull project) then
-                            for reference in project.ProjectReferences do
-                                let project = workspace.CurrentSolution.GetProject(reference.ProjectId)
-                                if not (isNull project) && project.Language = FSharpConstants.FSharpLanguageName then
-                                    let siteProvider = provideProjectSiteProvider (workspace, project, serviceProvider, projectOptionsTable)
-                                    let referenceProject = workspace.ProjectTracker.GetProject(reference.ProjectId)
-                                    let outputPath = referenceProject.BinOutputPath
-                                    yield Some projectId, project.FilePath, outputPath, siteProvider
+                        match projectIdOpt with
+                        | Some(projectId) ->
+                            let project = workspace.CurrentSolution.GetProject(projectId)
+                            if not (isNull project) then
+                                for reference in project.ProjectReferences do
+                                    let project = workspace.CurrentSolution.GetProject(reference.ProjectId)
+                                    if not (isNull project) && project.Language = FSharpConstants.FSharpLanguageName then
+                                        let siteProvider = provideProjectSiteProvider (workspace, project, serviceProvider, projectOptionsTable)
+                                        let referenceProject = workspace.ProjectTracker.GetProject(reference.ProjectId)
+                                        let outputPath = referenceProject.BinOutputPath
+                                        yield Some project.Id, project.FilePath, outputPath, siteProvider
+                        | _ -> ()
 
-                | (Some references), _ ->
+                | (Some references), Some (:? VisualStudioWorkspaceImpl as workspace) ->
                     for p in references do
                         match solutionService.GetProjectOfUniqueName(p.UniqueName) with
                         | VSConstants.S_OK, (:? IProvideProjectSite as ps) ->
-                            yield None, p.FileName,  (fullOutputAssemblyPath p) |> Option.defaultValue "", ps
+                            let path = ps.GetProjectSite().ProjectFileName
+                            let projectId = workspace.ProjectTracker.GetOrCreateProjectIdForPath(path, projectDisplayNameOf path)
+                            yield Some projectId, p.FileName,  (fullOutputAssemblyPath p) |> Option.defaultValue "", ps
                         | _ -> ()
-                | None, _ -> ()
+                | _ -> ()
             |]
         let solutionService = try Some (serviceProvider.GetService(typeof<SVsSolution>) :?> IVsSolution) with _ -> None
         seq { match solutionService with
@@ -255,26 +259,33 @@ type internal ProjectSitesAndFiles() =
               | None -> ()
             }
 
-    static let rec referencedProjectsOf(enableInMemoryCrossProjectReferences, tryGetOptionsForReferencedProject, projectSite, serviceProvider, extraProjectInfo, projectOptionsTable) =
-        [| for (projectId, projectFileName, outputPath, projectSiteProvider) in referencedProvideProjectSites (projectSite, serviceProvider, extraProjectInfo, projectOptionsTable) do
-               let referencedProjectOptions =
-                   // Lookup may not succeed if the project has not been established yet
-                   // In this case we go and compute the options recursively.
-                   match tryGetOptionsForReferencedProject projectFileName with 
-                   | None -> getProjectOptionsForProjectSite (enableInMemoryCrossProjectReferences, tryGetOptionsForReferencedProject, projectSiteProvider.GetProjectSite(), serviceProvider,  projectId, projectFileName, extraProjectInfo, projectOptionsTable) |> snd
-                   | Some options -> options
-               yield projectFileName, (outputPath, referencedProjectOptions) |]
+    static let rec referencedProjectsOf(projectIdOpt, projectSite, serviceProvider, extraProjectInfo, projectOptionsTable) =
+        [| for (projectIdOpt, projectFileName, outputPath, _projectSiteProvider) in referencedProvideProjectSites (projectIdOpt, projectSite, serviceProvider, extraProjectInfo, projectOptionsTable) do
+               let referencedProjectOptionsOpt =
+                    projectOptionsTable
+                    |> Option.bind (fun x -> 
+                        match projectIdOpt with
+                        | Some(projectId) -> x.TryGetOptionsForProject(projectId)
+                        | _ -> None
+                    )
+                    |> Option.map (fun (_, _, options) -> options)
+                    
+               match referencedProjectOptionsOpt with
+               | Some(referencedProjectOptions) ->
+                     yield projectFileName, (outputPath, referencedProjectOptions)
+               | _ -> ()
+        |]
 
-    and getProjectOptionsForProjectSite(enableInMemoryCrossProjectReferences, tryGetOptionsForReferencedProject, projectSite, serviceProvider, projectId, fileName, extraProjectInfo, projectOptionsTable) =
+    and getProjectOptionsForProjectSite(enableInMemoryCrossProjectReferences, projectSite, serviceProvider, projectIdOpt, fileName, extraProjectInfo, projectOptionsTable) =
         let referencedProjectFileNames, referencedProjectOptions = 
             if enableInMemoryCrossProjectReferences then
-                referencedProjectsOf(enableInMemoryCrossProjectReferences, tryGetOptionsForReferencedProject, projectSite, serviceProvider, extraProjectInfo, projectOptionsTable)
+                referencedProjectsOf(projectIdOpt, projectSite, serviceProvider, extraProjectInfo, projectOptionsTable)
                 |> Array.unzip
             else [| |], [| |]
         let option =
             let newOption () = {
                 ProjectFileName = projectSite.ProjectFileName
-                ProjectId = projectId |> Option.map (fun x -> x.ToFSharpProjectIdString())
+                ProjectId = projectIdOpt |> Option.map (fun x -> x.ToFSharpProjectIdString())
                 SourceFiles = projectSite.CompilationSourceFiles
                 OtherOptions = projectSite.CompilationOptions
                 ReferencedProjects = referencedProjectOptions
@@ -286,7 +297,7 @@ type internal ProjectSitesAndFiles() =
                 ExtraProjectInfo=extraProjectInfo 
                 Stamp = (stamp <- stamp + 1L; Some stamp) 
             }
-            match projectId, projectOptionsTable with
+            match projectIdOpt, projectOptionsTable with
             | Some id, Some optionsTable ->
                 // Get options from cache
                 match optionsTable.TryGetOptionsForProject(id) with
@@ -308,16 +319,16 @@ type internal ProjectSitesAndFiles() =
             failwith ".fsx or .fsscript should have been treated as implicit project"
         new ProjectSiteOfSingleFile(filename) :> IProjectSite
 
-    static member GetReferencedProjectSites(projectSite:IProjectSite, serviceProvider:System.IServiceProvider, extraProjectInfo, projectOptions) =
-        referencedProvideProjectSites (projectSite, serviceProvider, extraProjectInfo, projectOptions)
+    static member GetReferencedProjectSites(projectIdOpt, projectSite:IProjectSite, serviceProvider:System.IServiceProvider, extraProjectInfo, projectOptions) =
+        referencedProvideProjectSites (projectIdOpt, projectSite, serviceProvider, extraProjectInfo, projectOptions)
         |> Seq.map (fun (_, _, _, ps) -> ps.GetProjectSite())
         |> Seq.toArray
 
     /// Create project options for this project site.
-    static member GetProjectOptionsForProjectSite(enableInMemoryCrossProjectReferences, tryGetOptionsForReferencedProject, projectSite:IProjectSite, serviceProvider, projectId, filename, extraProjectInfo, projectOptionsTable) =
+    static member GetProjectOptionsForProjectSite(enableInMemoryCrossProjectReferences, projectSite:IProjectSite, serviceProvider, projectId, filename, extraProjectInfo, projectOptionsTable) =
         match projectSite with
         | :? IHaveCheckOptions as hco -> hco.OriginalCheckOptions()
-        | _ -> getProjectOptionsForProjectSite(enableInMemoryCrossProjectReferences, tryGetOptionsForReferencedProject, projectSite, serviceProvider, projectId, filename, extraProjectInfo, projectOptionsTable)
+        | _ -> getProjectOptionsForProjectSite(enableInMemoryCrossProjectReferences, projectSite, serviceProvider, projectId, filename, extraProjectInfo, projectOptionsTable)
 
     /// Create project site for these project options
     static member CreateProjectSiteForScript (filename, referencedProjectFileNames, checkOptions) = 

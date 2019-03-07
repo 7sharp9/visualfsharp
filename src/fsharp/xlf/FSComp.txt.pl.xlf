@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" source-language="en" target-language="pl" original="../FSComp.resx">
     <body>
@@ -83,18 +83,18 @@
         <note />
       </trans-unit>
       <trans-unit id="listElementHasWrongType">
-        <source>All elements of a list constructor expression must have the same type. This expression was expected to have type '{0}', but here has type '{1}'.</source>
-        <target state="translated">Wszystkie elementy wyrażenia konstruktora listy muszą mieć ten sam typ. Oczekiwano, że to wyrażenie będzie miało typ „{0}”, ale tutaj ma typ „{1}”.</target>
+        <source>All elements of a list must be of the same type as the first element, which here is '{0}'. This element has type '{1}'.</source>
+        <target state="needs-review-translation">Wszystkie elementy wyrażenia konstruktora listy muszą mieć ten sam typ. Oczekiwano, że to wyrażenie będzie miało typ „{0}”, ale tutaj ma typ „{1}”.</target>
         <note />
       </trans-unit>
       <trans-unit id="arrayElementHasWrongType">
-        <source>All elements of an array constructor expression must have the same type. This expression was expected to have type '{0}', but here has type '{1}'.</source>
-        <target state="translated">Wszystkie elementy wyrażenia konstruktora tablicy muszą mieć ten sam typ. Oczekiwano, że to wyrażenie będzie miało typ „{0}”, ale tutaj ma typ „{1}”.</target>
+        <source>All elements of an array must be of the same type as the first element, which here is '{0}'. This element has type '{1}'.</source>
+        <target state="needs-review-translation">Wszystkie elementy wyrażenia konstruktora tablicy muszą mieć ten sam typ. Oczekiwano, że to wyrażenie będzie miało typ „{0}”, ale tutaj ma typ „{1}”.</target>
         <note />
       </trans-unit>
       <trans-unit id="missingElseBranch">
-        <source>The 'if' expression is missing an 'else' branch. The 'then' branch has type '{0}'. Because 'if' is an expression, and not a statement, add an 'else' branch which returns a value of the same type.</source>
-        <target state="translated">W wyrażeniu „if” brakuje gałęzi „else”. Gałąź „then” ma typ „{0}”. Jako że „if” jest wyrażeniem, a nie instrukcją, dodaj gałąź „else”, która będzie zwracać wartość tego samego typu.</target>
+        <source>This 'if' expression is missing an 'else' branch. Because 'if' is an expression, and not a statement, add an 'else' branch which also returns a value of type '{0}'.</source>
+        <target state="needs-review-translation">W wyrażeniu „if” brakuje gałęzi „else”. Gałąź „then” ma typ „{0}”. Jako że „if” jest wyrażeniem, a nie instrukcją, dodaj gałąź „else”, która będzie zwracać wartość tego samego typu.</target>
         <note />
       </trans-unit>
       <trans-unit id="ifExpression">
@@ -103,13 +103,13 @@
         <note />
       </trans-unit>
       <trans-unit id="elseBranchHasWrongType">
-        <source>All branches of an 'if' expression must have the same type. This expression was expected to have type '{0}', but here has type '{1}'.</source>
-        <target state="translated">Wszystkie gałęzie wyrażenia „if” muszą mieć ten sam typ. Oczekiwano, że to wyrażenie będzie miało typ „{0}”, ale tutaj ma typ „{1}”.</target>
+        <source>All branches of an 'if' expression must return values of the same type as the first branch, which here is '{0}'. This branch returns a value of type '{1}'.</source>
+        <target state="needs-review-translation">Wszystkie gałęzie wyrażenia „if” muszą mieć ten sam typ. Oczekiwano, że to wyrażenie będzie miało typ „{0}”, ale tutaj ma typ „{1}”.</target>
         <note />
       </trans-unit>
       <trans-unit id="followingPatternMatchClauseHasWrongType">
-        <source>All branches of a pattern match expression must return values of the same type. The first branch returned a value of type '{0}', but this branch returned a value of type '{1}'.</source>
-        <target state="translated">Wszystkie gałęzie wyrażenia dopasowania do wzorca muszą zwracać wartości tego samego typu. Pierwsza gałąź zwróciła wartość typu „{0}”, ale ta gałąź zwróciła wartość typu „{1}”</target>
+        <source>All branches of a pattern match expression must return values of the same type as the first branch, which here is '{0}'. This branch returns a value of type '{1}'.</source>
+        <target state="needs-review-translation">Wszystkie gałęzie wyrażenia dopasowywania wzorca muszą zwracać wartości tego samego typu. Pierwsza gałąź zwróciła wartość typu „{0}”, ale ta gałąź zwróciła wartość typu „{1}”.</target>
         <note />
       </trans-unit>
       <trans-unit id="patternMatchGuardIsNotBool">
@@ -215,11 +215,6 @@
       <trans-unit id="buildMultipleReferencesNotAllowed">
         <source>Multiple references to '{0}.dll' are not permitted</source>
         <target state="translated">Używanie wielu odwołań do pliku „{0}.dll” jest niedozwolone</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="buildCouldNotReadVersionInfoFromMscorlib">
-        <source>Could not read version from mscorlib.dll</source>
-        <target state="translated">Nie można odczytać wersji z pliku mscorlib.dll</target>
         <note />
       </trans-unit>
       <trans-unit id="buildCannotReadAssembly">
@@ -1949,7 +1944,7 @@
       </trans-unit>
       <trans-unit id="parsSyntaxError">
         <source>Syntax error</source>
-        <target state="translated">Błąd składni</target>
+        <target state="translated">błąd składni</target>
         <note />
       </trans-unit>
       <trans-unit id="parsAugmentationsIllegalOnDelegateType">
@@ -4069,7 +4064,7 @@
       </trans-unit>
       <trans-unit id="optsCopyright">
         <source>Copyright (c) Microsoft Corporation. All Rights Reserved.</source>
-        <target state="translated">Copyright (c) Microsoft Corporation. Wszelkie prawa zastrzeżone.</target>
+        <target state="translated">Copyright (C) Microsoft Corporation. Wszelkie prawa zastrzeżone.</target>
         <note />
       </trans-unit>
       <trans-unit id="optsCopyrightCommunity">
@@ -4544,7 +4539,7 @@
       </trans-unit>
       <trans-unit id="typeInfoArgument">
         <source>argument</source>
-        <target state="translated">argument</target>
+        <target state="translated">Argument</target>
         <note />
       </trans-unit>
       <trans-unit id="typeInfoPatternVariable">
@@ -5123,13 +5118,13 @@
         <note />
       </trans-unit>
       <trans-unit id="parsNonAdjacentTypars">
-        <source>Type parameters must be placed directly adjacent to the type name, e.g. \"type C&lt;'T&gt;\", not     type \"C   &lt;'T&gt;\"</source>
-        <target state="translated">Parametry typu muszą być umieszczone w bezpośrednim sąsiedztwie nazwy typu (np. \"type C&lt;'T&gt;\", a nie     type \"C   &lt;'T&gt;\")</target>
+        <source>Remove spaces between the type name and type parameter, e.g. \"type C&lt;'T&gt;\", not type \"C   &lt;'T&gt;\". Type parameters must be placed directly adjacent to the type name.</source>
+        <target state="needs-review-translation">Parametry typu muszą być umieszczone w bezpośrednim sąsiedztwie nazwy typu (np. \"type C&lt;'T&gt;\", a nie     type \"C   &lt;'T&gt;\")</target>
         <note />
       </trans-unit>
       <trans-unit id="parsNonAdjacentTyargs">
-        <source>Type arguments must be placed directly adjacent to the type name, e.g. \"C&lt;'T&gt;\", not \"C  &lt;'T&gt;\"</source>
-        <target state="translated">Argumenty typu muszą być umieszczone w bezpośrednim sąsiedztwie nazwy typu (np. \"C&lt;'T&gt;\", a nie \"C  &lt;'T&gt;\")</target>
+        <source>Remove spaces between the type name and type parameter, e.g. \"C&lt;'T&gt;\", not \"C &lt;'T&gt;\". Type parameters must be placed directly adjacent to the type name.</source>
+        <target state="needs-review-translation">Argumenty typu muszą być umieszczone w bezpośrednim sąsiedztwie nazwy typu (np. \"C&lt;'T&gt;\", a nie \"C  &lt;'T&gt;\")</target>
         <note />
       </trans-unit>
       <trans-unit id="parsNonAtomicType">
@@ -5229,7 +5224,7 @@
       </trans-unit>
       <trans-unit id="ilFieldHasOffsetForSequentialLayout">
         <source>The FieldOffset attribute can only be placed on members of types marked with the StructLayout(LayoutKind.Explicit)</source>
-        <target state="translated">Atrybut FieldOffset można umieścić tylko w elementach członkowskich o typie oznaczonym przy użyciu atrybutu StructLayout(LayoutKind.Explicit).</target>
+        <target state="translated">Atrybut FieldOffset można umieścić tylko w składowych o typie oznaczonym przy użyciu atrybutu StructLayout(LayoutKind.Explicit).</target>
         <note />
       </trans-unit>
       <trans-unit id="tcOptionalArgsMustComeAfterNonOptionalArgs">
@@ -6328,8 +6323,8 @@
         <note />
       </trans-unit>
       <trans-unit id="tcUnionCaseConstructorDoesNotHaveFieldWithGivenName">
-        <source>Union case/exception '{0}' does not have field named '{1}'.</source>
-        <target state="translated">Przypadek unii/wyjątek „{0}” nie ma pola o nazwie „{1}”.</target>
+        <source>The union case '{0}' does not have a field named '{1}'.</source>
+        <target state="needs-review-translation">Przypadek unii/wyjątek „{0}” nie ma pola o nazwie „{1}”.</target>
         <note />
       </trans-unit>
       <trans-unit id="tcUnionCaseFieldCannotBeUsedMoreThanOnce">
@@ -6504,7 +6499,7 @@
       </trans-unit>
       <trans-unit id="CallerMemberNameIsOverriden">
         <source>The CallerMemberNameAttribute applied to parameter '{0}' will have no effect. It is overridden by the CallerFilePathAttribute.</source>
-        <target state="translated">Zastosowanie elementu CallerMemberNameAttribute do parametru „{0}” nie odniesie żadnego skutku. Jest on przesłonięty przez element CallerFilePathAttribute.</target>
+        <target state="translated">Zastosowanie elementu CallerMemberNameAttribute do parametru „{0}” nie odniesie żadnego skutku. Jest on przesłaniany przez element CallerFilePathAttribute.</target>
         <note />
       </trans-unit>
       <trans-unit id="tcFixedNotAllowed">
@@ -6708,8 +6703,8 @@
         <note />
       </trans-unit>
       <trans-unit id="keywordDescriptionLetBang">
-        <source>Used in asynchronous workflows to bind a name to the result of an asynchronous computation, or, in other computation expressions, used to bind a name to a result, which is of the computation type.</source>
-        <target state="translated">Używane w asynchronicznych przepływach pracy do powiązywania nazwy z wynikiem obliczenia asynchronicznego lub w innych wyrażeniach obliczenia do powiązywania nazwy z wynikiem, którego typ to obliczenie.</target>
+        <source>Used in computation expressions to bind a name to the result of another computation expression.</source>
+        <target state="review-required-translation">Używane w asynchronicznych przepływach pracy do powiązywania nazwy z wynikiem obliczenia asynchronicznego lub w innych wyrażeniach obliczenia do powiązywania nazwy z wynikiem, którego typ to obliczenie.</target>
         <note />
       </trans-unit>
       <trans-unit id="keywordDescriptionMatch">
@@ -6788,13 +6783,13 @@
         <note />
       </trans-unit>
       <trans-unit id="keywordDescriptionReturn">
-        <source>Used to indicate a value to provide as the result of a computation expression.</source>
-        <target state="translated">Używane do wskazywania wartości do podania jako wyniku wyrażenia obliczenia.</target>
+        <source>Used to provide a value for the result of the containing computation expression.</source>
+        <target state="review-required-translation">Używane do wskazywania wartości do podania jako wyniku wyrażenia obliczenia.</target>
         <note />
       </trans-unit>
       <trans-unit id="keywordDescriptionReturnBang">
-        <source>Used to indicate a computation expression that, when evaluated, provides the result of the containing computation expression.</source>
-        <target state="translated">Używane do wskazywania wyrażenia obliczenia, które po obliczeniu udostępnia wynik zawartego wyrażenia obliczenia.</target>
+        <source>Used to provide a value for the result of the containing computation expression, where that value itself comes from the result another computation expression.</source>
+        <target state="review-required-translation">Używane do wskazywania wyrażenia obliczenia, które po obliczeniu udostępnia wynik zawartego wyrażenia obliczenia.</target>
         <note />
       </trans-unit>
       <trans-unit id="keywordDescriptionSelect">
@@ -6838,13 +6833,13 @@
         <note />
       </trans-unit>
       <trans-unit id="keywordDescriptionUse">
-        <source>Used instead of let for values that require Dispose to be called to free resources.</source>
-        <target state="translated">Używane zamiast instrukcji let na potrzeby wartości, które wymagają wywołania operacji Dispose w celu zwolnienia zasobów.</target>
+        <source>Used instead of let for values that implement IDisposable</source>
+        <target state="needs-review-translation">Używane zamiast instrukcji let na potrzeby wartości, które wymagają wywołania operacji Dispose w celu zwolnienia zasobów.</target>
         <note />
       </trans-unit>
       <trans-unit id="keywordDescriptionUseBang">
-        <source>Used instead of let! in asynchronous workflows and other computation expressions for values that require Dispose to be called to free resources.</source>
-        <target state="translated">Używane zamiast instrukcji let! w asynchronicznych przepływach pracy i innych wyrażeniach obliczenia na potrzeby wartości, które wymagają wywołania operacji Dispose w celu zwolnienia zasobów.</target>
+        <source>Used instead of let! in computation expressions for computation expression results that implement IDisposable.</source>
+        <target state="review-required-translation">Używane zamiast instrukcji let! w asynchronicznych przepływach pracy i innych wyrażeniach obliczenia na potrzeby wartości, które wymagają wywołania operacji Dispose w celu zwolnienia zasobów.</target>
         <note />
       </trans-unit>
       <trans-unit id="keywordDescriptionVal">
@@ -7012,11 +7007,6 @@
         <target state="translated">W tym miejscu nie można użyć adresu zmiennej „{0}” ani powiązanego wyrażenia. Ma to na celu uniemożliwienie adresowi wartości lokalnej wykroczenia poza zakres.</target>
         <note />
       </trans-unit>
-      <trans-unit id="chkNoReturnOfLimitedSpan">
-        <source>The Span or IsByRefLike expression cannot be returned from this function or method, because it is composed using elements that may escape their scope.</source>
-        <target state="translated">Z tej funkcji lub metody nie można zwrócić wyrażenia Span ani IsByRefLike, ponieważ jest ona złożona przy użyciu elementów, które mogą wykroczyć poza swój zakres.</target>
-        <note />
-      </trans-unit>
       <trans-unit id="chkNoWriteToLimitedSpan">
         <source>This value can't be assigned because the target '{0}' may refer to non-stack-local memory, while the expression being assigned is assessed to potentially refer to stack-local memory. This is to help prevent pointers to stack-bound memory escaping their scope.</source>
         <target state="translated">Ta wartość nie może zostać przypisana, ponieważ element docelowy „{0}” może odwoływać się do pamięci innej niż pamięć lokalna dla stosu, natomiast przypisywane wyrażenie może potencjalnie odwoływać się do pamięci lokalnej dla stosu. Dzięki temu łatwiej uniemożliwić wskaźnikom do pamięci powiązanej ze stosem wykroczenie poza ich zakres.</target>
@@ -7059,7 +7049,87 @@
       </trans-unit>
       <trans-unit id="tastCantTakeAddressOfExpression">
         <source>Cannot take the address of the value returned from the expression. Assign the returned value to a let-bound value before taking the address.</source>
-        <target state="new">Cannot take the address of the value returned from the expression. Assign the returned value to a let-bound value before taking the address.</target>
+        <target state="translated">Nie można uzyskać adresu wartości zwróconej przez wyrażenie. Przypisz zwróconą wartość do wartości powiązanej za pomocą instrukcji let przed uzyskaniem adresu.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="parsUnmatchedBraceBar">
+        <source>Unmatched '{{|'</source>
+        <target state="new">Unmatched '{{|'</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="typeInfoAnonRecdField">
+        <source>anonymous record field</source>
+        <target state="new">anonymous record field</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="tcExceptionConstructorDoesNotHaveFieldWithGivenName">
+        <source>The exception '{0}' does not have a field named '{1}'.</source>
+        <target state="new">The exception '{0}' does not have a field named '{1}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="tcActivePatternsDoNotHaveFields">
+        <source>Active patterns do not have fields. This syntax is invalid.</source>
+        <target state="new">Active patterns do not have fields. This syntax is invalid.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="tcConstructorDoesNotHaveFieldWithGivenName">
+        <source>The constructor does not have a field named '{0}'.</source>
+        <target state="new">The constructor does not have a field named '{0}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="tcAnonRecdCcuMismatch">
+        <source>Two anonymous record types are from different assemblies '{0}' and '{1}'</source>
+        <target state="new">Two anonymous record types are from different assemblies '{0}' and '{1}'</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="tcAnonRecdFieldNameMismatch">
+        <source>Two anonymous record types have mismatched sets of field names '{0}' and '{1}'</source>
+        <target state="new">Two anonymous record types have mismatched sets of field names '{0}' and '{1}'</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="tcCannotCallExtensionMethodInrefToByref">
+        <source>Cannot call the byref extension method '{0}. The first parameter requires the value to be mutable or a non-readonly byref type.</source>
+        <target state="new">Cannot call the byref extension method '{0}. The first parameter requires the value to be mutable or a non-readonly byref type.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="tcByrefsMayNotHaveTypeExtensions">
+        <source>Byref types are not allowed to have optional type extensions.</source>
+        <target state="new">Byref types are not allowed to have optional type extensions.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="tcCannotPartiallyApplyExtensionMethodForByref">
+        <source>Cannot partially apply the extension method '{0}' because the first parameter is a byref type.</source>
+        <target state="new">Cannot partially apply the extension method '{0}' because the first parameter is a byref type.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="tcTypeDoesNotInheritAttribute">
+        <source>This type does not inherit Attribute, it will not work correctly with other .NET languages.</source>
+        <target state="new">This type does not inherit Attribute, it will not work correctly with other .NET languages.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="parsInvalidAnonRecdExpr">
+        <source>Invalid anonymous record expression</source>
+        <target state="new">Invalid anonymous record expression</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="parsInvalidAnonRecdType">
+        <source>Invalid anonymous record type</source>
+        <target state="new">Invalid anonymous record type</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="tcCopyAndUpdateNeedsRecordType">
+        <source>The input to a copy-and-update expression that creates an anonymous record must be either an anonymous record or a record</source>
+        <target state="new">The input to a copy-and-update expression that creates an anonymous record must be either an anonymous record or a record</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="chkInvalidFunctionParameterType">
+        <source>The parameter '{0}' has an invalid type '{1}'. This is not permitted by the rules of Common IL.</source>
+        <target state="new">The parameter '{0}' has an invalid type '{1}'. This is not permitted by the rules of Common IL.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="chkInvalidFunctionReturnType">
+        <source>The function or method has an invalid return type '{0}'. This is not permitted by the rules of Common IL.</source>
+        <target state="new">The function or method has an invalid return type '{0}'. This is not permitted by the rules of Common IL.</target>
         <note />
       </trans-unit>
     </body>

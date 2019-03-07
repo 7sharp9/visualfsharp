@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.  All Rights Reserved.  See License.txt in the project root for license information.
 
-module Microsoft.FSharp.Compiler.Layout
+module FSharp.Compiler.Layout
 
 open System
 open System.Collections.Generic
@@ -109,6 +109,8 @@ module TaggedTextOps =
         let rightBracket = Internal.Utilities.StructuredFormat.TaggedTextOps.Literals.rightBracket
         let leftBrace = Internal.Utilities.StructuredFormat.TaggedTextOps.Literals.leftBrace
         let rightBrace = Internal.Utilities.StructuredFormat.TaggedTextOps.Literals.rightBrace
+        let leftBraceBar = Internal.Utilities.StructuredFormat.TaggedTextOps.Literals.leftBraceBar
+        let rightBraceBar = Internal.Utilities.StructuredFormat.TaggedTextOps.Literals.rightBraceBar
         let equals = Internal.Utilities.StructuredFormat.TaggedTextOps.Literals.equals
         let arrow = Internal.Utilities.StructuredFormat.TaggedTextOps.Literals.arrow
         let questionMark = Internal.Utilities.StructuredFormat.TaggedTextOps.Literals.questionMark

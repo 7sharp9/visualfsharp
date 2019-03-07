@@ -10,10 +10,11 @@ open System.Threading.Tasks
 open Microsoft.CodeAnalysis
 open Microsoft.CodeAnalysis.Text
 open Microsoft.CodeAnalysis.Diagnostics
-open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.Layout
-open Microsoft.FSharp.Compiler.SourceCodeServices
-open Microsoft.FSharp.Compiler.Range
+open FSharp.Compiler
+open FSharp.Compiler.Layout
+open FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.Range
+open Microsoft.VisualStudio.FSharp.Editor.Logging
 
 [<RequireQualifiedAccess>]
 module internal RoslynHelpers =
@@ -159,6 +160,16 @@ module internal RoslynHelpers =
         let textSpan = sourceText.Lines.GetTextSpan linePositionSpan
         Location.Create(filePath, textSpan, linePositionSpan)
 
+    let StartAsyncSafe cancellationToken context computation =
+        let computation =
+            async {
+                try
+                    return! computation
+                with e ->
+                    logExceptionWithContext(e, context)
+                    return Unchecked.defaultof<_>
+            }
+        Async.Start (computation, cancellationToken)
 
 module internal OpenDeclarationHelper =
     /// <summary>

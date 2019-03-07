@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.  All Rights Reserved.  See License.txt in the project root for license information.
 
-module internal Microsoft.FSharp.Compiler.CheckFormatStrings
+module internal FSharp.Compiler.CheckFormatStrings
 
-open Microsoft.FSharp.Compiler 
-open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library 
-open Microsoft.FSharp.Compiler.Ast
-open Microsoft.FSharp.Compiler.Range
-open Microsoft.FSharp.Compiler.Tast
-open Microsoft.FSharp.Compiler.Tastops
-open Microsoft.FSharp.Compiler.TcGlobals
-open Microsoft.FSharp.Compiler.ConstraintSolver
-open Microsoft.FSharp.Compiler.NameResolution
+open FSharp.Compiler 
+open FSharp.Compiler.AbstractIL.Internal.Library 
+open FSharp.Compiler.Ast
+open FSharp.Compiler.Range
+open FSharp.Compiler.Tast
+open FSharp.Compiler.Tastops
+open FSharp.Compiler.TcGlobals
+open FSharp.Compiler.ConstraintSolver
+open FSharp.Compiler.NameResolution
 
 type FormatItem = Simple of TType | FuncAndVal 
 
@@ -42,7 +42,7 @@ type FormatInfoRegister =
     mutable addZeros       : bool
     mutable precision      : bool}
 
-let newInfo ()= 
+let newInfo () = 
   { leftJustify    = false
     numPrefixIfPos = None
     addZeros       = false
@@ -54,15 +54,15 @@ let parseFormatStringInternal (m:range) (g: TcGlobals) (context: FormatStringChe
     let (offset, fmt) = 
         match context with
         | Some context ->
-            let length = context.NormalizedSource.Length
-            if m.EndLine < context.LineEndPositions.Length then
-                let startIndex = context.LineEndPositions.[m.StartLine-1] + m.StartColumn
-                let endIndex = context.LineEndPositions.[m.EndLine-1] + m.EndColumn - 1
-                if startIndex < length-3 && context.NormalizedSource.[startIndex..startIndex+2] = "\"\"\"" then
-                    (3, context.NormalizedSource.[startIndex+3..endIndex-3])
-                elif startIndex < length-2 && context.NormalizedSource.[startIndex..startIndex+1] = "@\"" then
-                    (2, context.NormalizedSource.[startIndex+2..endIndex-1])
-                else (1, context.NormalizedSource.[startIndex+1..endIndex-1])
+            let length = context.Source.Length
+            if m.EndLine < context.LineStartPositions.Length then
+                let startIndex = context.LineStartPositions.[m.StartLine-1] + m.StartColumn
+                let endIndex = context.LineStartPositions.[m.EndLine-1] + m.EndColumn - 1
+                if startIndex < length-3 && context.Source.[startIndex..startIndex+2] = "\"\"\"" then
+                    (3, context.Source.[startIndex+3..endIndex-3])
+                elif startIndex < length-2 && context.Source.[startIndex..startIndex+1] = "@\"" then
+                    (2, context.Source.[startIndex+2..endIndex-1])
+                else (1, context.Source.[startIndex+1..endIndex-1])
             else (1, fmt)
         | None -> (1, fmt)
 

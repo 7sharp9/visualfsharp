@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.  All Rights Reserved.  See License.txt in the project root for license information.
 
-module internal Microsoft.FSharp.Compiler.Lib
+module internal FSharp.Compiler.Lib
 
 open System.IO
 open System.Collections.Generic
 open Internal.Utilities
-open Microsoft.FSharp.Compiler.AbstractIL
-open Microsoft.FSharp.Compiler.AbstractIL.Internal 
-open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
+open FSharp.Compiler.AbstractIL
+open FSharp.Compiler.AbstractIL.Internal 
+open FSharp.Compiler.AbstractIL.Internal.Library
 
 
 /// is this the developer-debug build? 
@@ -226,9 +226,8 @@ module ListSet =
         | (h::t) -> if contains f h l1 then h::intersect f l1 t else intersect f l1 t
         | [] -> []
 
-    (* NOTE: quadratic! *)
     // Note: if duplicates appear, keep the ones toward the _front_ of the list
-    let setify f l = List.foldBack (insert f) (List.rev l) [] |> List.rev
+    let setify f l = List.fold (fun acc x -> insert f x acc) [] l |> List.rev
 
     let hasDuplicates f l =
         match l with

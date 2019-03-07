@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.  All Rights Reserved.  See License.txt in the project root for license information.
 
-module internal Microsoft.FSharp.Compiler.AbstractIL.ILPdbWriter
+module internal FSharp.Compiler.AbstractIL.ILPdbWriter
 
 open System
 open System.Collections.Generic 
@@ -12,12 +12,12 @@ open System.Reflection.Metadata
 open System.Reflection.Metadata.Ecma335
 open System.Reflection.PortableExecutable
 open Internal.Utilities
-open Microsoft.FSharp.Compiler.AbstractIL.IL 
-open Microsoft.FSharp.Compiler.AbstractIL.Diagnostics 
-open Microsoft.FSharp.Compiler.AbstractIL.Internal.Support 
-open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library 
-open Microsoft.FSharp.Compiler.ErrorLogger
-open Microsoft.FSharp.Compiler.Range
+open FSharp.Compiler.AbstractIL.IL 
+open FSharp.Compiler.AbstractIL.Diagnostics 
+open FSharp.Compiler.AbstractIL.Internal.Support 
+open FSharp.Compiler.AbstractIL.Internal.Library 
+open FSharp.Compiler.ErrorLogger
+open FSharp.Compiler.Range
 
 
 type BlobBuildingStream () =
@@ -172,7 +172,7 @@ let pdbGetPdbDebugInfo (embeddedPDBChunk:BinaryChunk) (uncompressedLength:int64)
       iddChunk = embeddedPDBChunk;
     }
 
-let pdbGetDebugInfo (mvid:byte[]) (timestamp:int32) (filepath:string) (cvChunk:BinaryChunk) (embeddedPDBChunk:BinaryChunk option) (uncompressedLength:int64) (stream:MemoryStream option)= 
+let pdbGetDebugInfo (mvid:byte[]) (timestamp:int32) (filepath:string) (cvChunk:BinaryChunk) (embeddedPDBChunk:BinaryChunk option) (uncompressedLength:int64) (stream:MemoryStream option) = 
     match stream, embeddedPDBChunk with
     | None, _  | _, None -> [| pdbGetCvDebugInfo mvid timestamp filepath cvChunk |]
     | Some s, Some chunk -> [| pdbGetCvDebugInfo mvid timestamp filepath cvChunk; pdbGetPdbDebugInfo chunk uncompressedLength s; |]
@@ -416,10 +416,16 @@ let generatePortablePdb (embedAllSource:bool) (embedSourceList:string list) (sou
 
             let collectScopes scope =
                 let list = new List<PdbMethodScope>()
-                let rec toList scope =
-                    list.Add scope
-                    scope.Children |> Seq.iter(fun s -> toList s)
-                toList scope
+                let rec toList scope parent =
+                    let nested =
+                        match parent with
+                        | Some p -> scope.StartOffset <> p.StartOffset || scope.EndOffset <> p.EndOffset
+                        | None -> true
+
+                    if nested then list.Add scope
+                    scope.Children |> Seq.iter(fun s -> toList s (if nested then Some scope else parent))
+
+                toList scope None
                 list.ToArray() |> Array.sortWith<PdbMethodScope> scopeSorter
 
             collectScopes scope |> Seq.iter(fun s ->
@@ -449,8 +455,8 @@ let generatePortablePdb (embedAllSource:bool) (embedSourceList:string list) (sou
             let convert (content:IEnumerable<Blob>) = 
                 use sha = System.Security.Cryptography.SHA1.Create()    // IncrementalHash is core only
                 let hash = content 
-                           |> Seq.map ( fun c -> c.GetBytes().Array |> sha.ComputeHash )         
-                           |> Seq.collect id |> Array.ofSeq |> sha.ComputeHash
+                           |> Seq.collect (fun c -> c.GetBytes().Array |> sha.ComputeHash)
+                           |> Array.ofSeq |> sha.ComputeHash
                 BlobContentId.FromHash(hash)
             System.Func<IEnumerable<Blob>, BlobContentId>( convert )
 

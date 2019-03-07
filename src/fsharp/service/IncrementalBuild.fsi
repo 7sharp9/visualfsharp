@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation.  All Rights Reserved.  See License.txt in the project root for license information.
 
-namespace Microsoft.FSharp.Compiler
+namespace FSharp.Compiler
 
 open System
-open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.Range
-open Microsoft.FSharp.Compiler.ErrorLogger
-open Microsoft.FSharp.Compiler.AbstractIL
-open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library
-open Microsoft.FSharp.Compiler.TcGlobals
-open Microsoft.FSharp.Compiler.CompileOps
-open Microsoft.FSharp.Compiler.NameResolution
-open Microsoft.FSharp.Compiler.Tast
-open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler
+open FSharp.Compiler.Range
+open FSharp.Compiler.ErrorLogger
+open FSharp.Compiler.AbstractIL
+open FSharp.Compiler.AbstractIL.Internal.Library
+open FSharp.Compiler.TcGlobals
+open FSharp.Compiler.CompileOps
+open FSharp.Compiler.NameResolution
+open FSharp.Compiler.Tast
+open FSharp.Compiler.SourceCodeServices
 
 /// Lookup the global static cache for building the FrameworkTcImports
 type internal FrameworkImportsCache = 
@@ -54,6 +54,9 @@ type internal PartialCheckResults =
 
       /// Represents open declarations
       TcOpenDeclarationsRev: OpenDeclaration[] list
+
+      /// Disambiguation table for module names
+      ModuleNamesDict: ModuleNamesDict
 
       TcDependencyFiles: string list
 
@@ -150,8 +153,6 @@ type internal IncrementalBuilder =
       ///
       // TODO: make this an Eventually (which can be scheduled) or an Async (which can be cancelled)
       member GetCheckResultsAndImplementationsForProject : CompilationThreadToken -> Cancellable<PartialCheckResults * IL.ILAssemblyRef * IRawFSharpAssemblyData option * TypedImplFile list option>
-
-      member DeduplicateParsedInputModuleNameInProject: Ast.ParsedInput -> Ast.ParsedInput
 
       /// Get the logical time stamp that is associated with the output of the project if it were gully built immediately
       member GetLogicalTimeStampForProject: TimeStampCache * CompilationThreadToken -> DateTime

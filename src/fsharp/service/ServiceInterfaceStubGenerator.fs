@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Microsoft Corporation.  All Rights Reserved.  See License.txt in the project root for license information.
 
-namespace Microsoft.FSharp.Compiler.SourceCodeServices
+namespace FSharp.Compiler.SourceCodeServices
 
 open System
 open System.Diagnostics
 open System.Collections.Generic
-open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.Ast
-open Microsoft.FSharp.Compiler.Range
-open Microsoft.FSharp.Compiler.SourceCodeServices
-open Microsoft.FSharp.Compiler.AbstractIL.Internal.Library 
+open FSharp.Compiler
+open FSharp.Compiler.Ast
+open FSharp.Compiler.Range
+open FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.AbstractIL.Internal.Library 
         
 #if !FX_NO_INDENTED_TEXT_WRITER
 [<AutoOpen>]
@@ -151,8 +151,8 @@ type internal InterfaceData =
                         None
                 | SynType.Anon _ -> 
                     Some "_"
-                | SynType.Tuple(ts, _) ->
-                    Some (ts |> Seq.choose (snd >> (|TypeIdent|_|)) |> String.concat " * ")
+                | SynType.AnonRecd (_, ts, _)  -> 
+                    Some (ts |> Seq.choose (snd >> (|TypeIdent|_|)) |> String.concat "; ")
                 | SynType.Array(dimension, TypeIdent typeName, _) ->
                     Some (sprintf "%s [%s]" typeName (new String(',', dimension-1)))
                 | SynType.MeasurePower(TypeIdent typeName, RationalConst power, _) ->
@@ -761,7 +761,7 @@ module internal InterfaceStubGenerator =
                 | SynExpr.Typed(synExpr, _synType, _range) -> 
                     walkExpr synExpr
 
-                | SynExpr.Tuple(synExprList, _, _range)
+                | SynExpr.Tuple(_, synExprList, _, _range)
                 | SynExpr.ArrayOrList(_, synExprList, _range) ->
                     List.tryPick walkExpr synExprList
 
@@ -802,7 +802,7 @@ module internal InterfaceStubGenerator =
 
                 | SynExpr.MatchLambda(_isExnMatch, _argm, synMatchClauseList, _spBind, _wholem) -> 
                     synMatchClauseList |> List.tryPick (fun (Clause(_, _, e, _, _)) -> walkExpr e)
-                | SynExpr.Match(_sequencePointInfoForBinding, synExpr, synMatchClauseList, _, _range) ->
+                | SynExpr.Match(_sequencePointInfoForBinding, synExpr, synMatchClauseList, _range) ->
                     walkExpr synExpr
                     |> Option.orElse (synMatchClauseList |> List.tryPick (fun (Clause(_, _, e, _, _)) -> walkExpr e))
 
